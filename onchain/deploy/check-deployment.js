@@ -10,10 +10,10 @@ const web3 = new Web3(provider)
 async function startGame() {
     const accounts = await web3.eth.getAccounts()
 
-    const BetAbi = fs.readFileSync(path.resolve(__dirname, "..", "build", "Bet_sol_Bet.abi")).toString()
+    const BetAbi = fs.readFileSync(path.resolve(__dirname, "..", "build", "__contracts_Bet_sol_Bet.abi")).toString()
 
     try {
-        const BetInstance = new web3.eth.Contract(JSON.parse(BetAbi), "0xC78B3319b724F0baF70AB974F4be4BfCe8f79609")
+        const BetInstance = new web3.eth.Contract(JSON.parse(BetAbi), "0x77718aE07319464E14Dc9071F0D6ce81A56aa52C")
 
         const hash = await BetInstance.methods.saltedHash(100, "initial salt").call()
         const tx = await BetInstance.methods.createGame(hash, "Ole").send({ from: accounts[0], value: web3.utils.toWei("0.001", "ether") })

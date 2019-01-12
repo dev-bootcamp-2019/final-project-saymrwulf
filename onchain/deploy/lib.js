@@ -25,18 +25,31 @@ async function deployDapp() {
     console.log(`The account used to deploy is ${accounts[0]}`)
     console.log("Current balance: ", await web3.eth.getBalance(accounts[0]), "\n")
 
-    const BetAbi = fs.readFileSync(path.resolve(__dirname, "..", "build", "Bet_sol_Bet.abi")).toString()
-    const BetBytecode = fs.readFileSync(path.resolve(__dirname, "..", "build", "Bet_sol_Bet.bin")).toString()
+    const BetAbi = fs.readFileSync(path.resolve(__dirname, "..", "build", "__contracts_Bet_sol_Bet.abi")).toString()
+    const BetBytecode = fs.readFileSync(path.resolve(__dirname, "..", "build", "__contracts_Bet_sol_Bet.bin")).toString()
+    const LibraryDemoAbi = fs.readFileSync(path.resolve(__dirname, "..", "build", "__contracts_LibraryDemo_sol_LibraryDemo.abi")).toString()
+    const LibraryDemoBytecode = fs.readFileSync(path.resolve(__dirname, "..", "build", "__contracts_LibraryDemo_sol_LibraryDemo.bin")).toString()
 
     try {
-        console.log("Deploying Bet Contract...")
-        const BetAddress = await deploy(web3, accounts[0], BetAbi, BetBytecode, 0)
-        console.log(`- Bet Contract deployed at ${BetAddress}`)
+        console.log("Deploying LibraryDemo ...")
+        const LibraryDemoAddress = await deploy(web3, accounts[0], LibraryDemoAbi, LibraryDemoBytecode)
+        console.log(`- LibraryDemo deployed at ${LibraryDemoAddress}\n`)
+
+        const libPattern = /__.\/contracts\/LibraryDemo.sol:LibraryD__/g
+        const linkedBetBytecode = BetBytecode.replace(libPattern, LibraryDemoAddress.substr(2))
+        if (linkedBetBytecode.length != BetBytecode.length) {
+            throw new Error("The linked contract size does not match the original")
+        }
+        
+        console.log("Deploying Bet...")
+        const BetAddress = await deploy(web3, accounts[0], BetAbi, linkedBetBytecode, 0)
+        console.log(`- Bet deployed at ${BetAddress}`)
     }
     catch (err) {
         console.error("\nUnable to deploy:", err.message, "\n")
         process.exit(1)
     }
+
     process.exit()
 }
 

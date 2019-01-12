@@ -1,5 +1,6 @@
 // contracts/Bet.sol
 pragma solidity ^0.4.24;
+import "./LibraryDemo.sol";
 
 contract Bet {
     struct Game {
@@ -33,6 +34,9 @@ contract Bet {
         else {
             timeout = 10 minutes;
         }
+        // demonstrate usage of a lib
+        //bool yes = true;
+        //doNothing(yes);
     }
 
     // CALLABLE
@@ -283,6 +287,11 @@ contract Bet {
             k++;
         }
         return string(result);
+    }
+
+    // USING A LIB
+    function doNothing(bool yes) public pure returns (bool) {
+        return LibraryDemo.doNothing(yes);
     }
 
     // DEFAULT

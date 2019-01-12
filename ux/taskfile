@@ -1,7 +1,6 @@
 #!/bin/bash
 PATH=./node_modules/.bin:$PATH
 
-###############################################################################
 # ACTIONS
 
 function init {
@@ -9,25 +8,6 @@ function init {
   then sudo npm i -g parcel-bundler
   else npm i -g parcel-bundler
   fi
-}
-
-function build {
-  echo "Recompiling the contracts"
-  cd ../onchain
-  ./taskfile build > /dev/null
-  cd ../ux
-
-  echo "Cleaning the build folder"
-  rm ./build/*
-
-  echo "Bundling the web site"
-  NODE_ENV=production parcel build -d ./build --log-level 2 --no-source-maps --public-url ./ src/index.html
-}
-
-function www {
-  build
-
-  serve build -p 1234
 }
 
 function dev {
@@ -39,13 +19,6 @@ function dev {
     echo "Starting ganache"
     ganache-cli --mnemonic "$(cat ./dev/mnemonic.txt)" > /dev/null &
     ganache_pid=$!
-
-    # Uncomment below to recompile the contracts
-
-    # echo "Recompiling the contracts"
-    # cd ../onchain
-    # ./taskfile build > /dev/null
-    # cd ../ux
 
     echo "Deploying to ganache"
     sleep 2
@@ -71,13 +44,6 @@ function test {
   echo "Starting ganache"
   ganache-cli --mnemonic "$(cat ./dev/mnemonic.txt)" > /dev/null &
   ganache_pid=$!
-
-  # Uncomment below to recompile the contracts
-
-  # echo "Recompiling the contracts"
-  # cd ../onchain
-  # ./taskfile build > /dev/null
-  # cd ../ux
 
   echo "Deploying to ganache"
   sleep 2

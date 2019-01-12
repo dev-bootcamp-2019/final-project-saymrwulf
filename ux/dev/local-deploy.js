@@ -32,13 +32,25 @@ async function deployContracts() {
 
     const betContractAbi = fs.readFileSync(path.resolve(__dirname, "..", "..", "onchain", "build", "__contracts_Bet_sol_Bet.abi")).toString()
     const betContractBytecode = fs.readFileSync(path.resolve(__dirname, "..", "..", "onchain", "build", "__contracts_Bet_sol_Bet.bin")).toString()
+    const libraryDemoAbi = fs.readFileSync(path.resolve(__dirname, "..", "..", "onchain", "build", "__contracts_LibraryDemo_sol_LibraryDemo.abi")).toString()
+    const libraryDemoBytecode = fs.readFileSync(path.resolve(__dirname, "..", "..", "onchain", "build", "__contracts_LibraryDemo_sol_LibraryDemo.bin")).toString()
 
     try {
-    
-        console.log("Deploying BetContract...")
-        const betContractAddress = await deploy(web3, accounts[0], betContractAbi, betContractBytecode, 0)
-        console.log(`- BetContract deployed at ${betContractAddress}`)
 
+        console.log("Deploying LibraryDemo ...")
+        const libraryDemoAddress = await deploy(web3, accounts[0], libraryDemoAbi, libraryDemoBytecode)
+        console.log(`- LibraryDemo deployed at ${libraryDemoAddress}\n`)
+
+        const libPattern = /__.\/contracts\/LibraryDemo.sol:LibraryD__/g
+        const linkedBetBytecode = betContractBytecode.replace(libPattern, libraryDemoAddress.substr(2))
+        if (linkedBetBytecode.length != betContractBytecode.length) {
+            throw new Error("The linked contract size does not match the original")
+        }
+
+        console.log("Deploying BetContract...")
+        const betContractAddress = await deploy(web3, accounts[0], betContractAbi, linkedBetBytecode, 0)
+        console.log(`- BetContract deployed at ${betContractAddress}`)
+        
         // write .env.test.local
         setContractAddressToEnv(betContractAddress)
     }

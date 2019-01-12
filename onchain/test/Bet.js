@@ -59,8 +59,6 @@ contract('Bet', function (accounts) {
         assert.include(gamesIdx, gameIdx, "Should include the new game");
 
         let [status, amount, nick1, nick2, ...rest] = await gamesInstance.getGameInfo(gameIdx);
-        //cells = cells.map(n => n.toNumber());
-        //assert.deepEqual(cells, [0, 0, 0, 0, 0, 0, 0, 0, 0], "The board should be empty");
         assert.equal(status.toNumber(), 0, "The game should not be started");
         assert.equal(amount.toNumber(), 0, "The game should have no money");
         assert.equal(nick1, "John", "The player 1 should be John");
@@ -98,8 +96,6 @@ contract('Bet', function (accounts) {
         assert.include(gamesIdx, gameIdx, "Should include the new game");
 
         let [status, amount, nick1, nick2, ...rest] = await gamesInstance.getGameInfo(gameIdx);
-        //cells = cells.map(n => n.toNumber());
-        //assert.deepEqual(cells, [0, 0, 0, 0, 0, 0, 0, 0, 0], "The board should be empty");
         assert.equal(status.toNumber(), 0, "The game should not be started");
 
         assert.equal(amount.comparedTo(web3.toWei(0.01, 'ether')), 0, "The game should have 0.01 ether");
@@ -150,8 +146,6 @@ contract('Bet', function (accounts) {
         assert.include(gamesIdx, gameIdx, "Should include the new game");
 
         let [status, amount, nick1, nick2, ...rest] = await gamesInstance.getGameInfo(gameIdx);
-        //cells = cells.map(n => n.toNumber());
-        //assert.deepEqual(cells, [0, 0, 0, 0, 0, 0, 0, 0, 0], "The board should be empty");
         assert.equal(status.toNumber(), 0, "The game should not be started");
 
         assert.equal(amount.comparedTo(web3.toWei(0.02, 'ether')), 0, "The game should have 0.02 ether");
@@ -193,8 +187,6 @@ contract('Bet', function (accounts) {
         assert.include(gamesIdx, gameIdx, "Should include the new game");
 
         let [status, amount, nick1, nick2, ...rest] = await gamesInstance.getGameInfo(gameIdx);
-        //cells = cells.map(n => n.toNumber());
-        //assert.deepEqual(cells, [0, 0, 0, 0, 0, 0, 0, 0, 0], "The board should be empty");
         assert.equal(status.toNumber(), 0, "The game should not be started");
 
         assert.equal(amount.comparedTo(web3.toWei(0.005, 'ether')), 0, "The game should have 0.005 ether");
@@ -216,8 +208,6 @@ contract('Bet', function (accounts) {
         assert.equal(emittedEvents[0].args.opponent, player1, "The opponent should be player 1");
 
         [status, amount, nick1, nick2, ...rest] = await gamesInstance.getGameInfo(gameIdx);
-        //cells = cells.map(n => n.toNumber());
-        //assert.deepEqual(cells, [0, 0, 0, 0, 0, 0, 0, 0, 0], "The board should be empty");
         assert.equal(status.toNumber(), 0, "The game should not be started yet");
 
         assert.equal(amount.comparedTo(web3.toWei(0.005, 'ether')), 0, "The game should have 0.005 ether");
@@ -423,8 +413,6 @@ contract('Bet', function (accounts) {
         
         // 123 != 124 => player 2 should be the winner
         let [status] = await gamesInstance.getGameInfo(gameIdx);
-        //cells = cells.map(n => n.toNumber());
-        //assert.deepEqual(cells, [0, 0, 0, 0, 0, 0, 0, 0, 0], "The board should be empty");
         assert.equal(status.toNumber(), 12, "Player 2 should be the winner");
     });
 
@@ -457,8 +445,6 @@ contract('Bet', function (accounts) {
 
         // 100 ^ 200 is even => player 1 should start
         let [status, amount, nick1, nick2, ...rest] = await gamesInstance.getGameInfo(gameIdx);
-        //cells = cells.map(n => n.toNumber());
-        //assert.deepEqual(cells, [0, 0, 0, 0, 0, 0, 0, 0, 0], "The board should be empty");
         assert.equal(status.toNumber(), 1, "Player 1 should be able to start");
 
         assert.equal(amount.comparedTo(0), 0, "The game should have 0 ether");
@@ -505,8 +491,6 @@ contract('Bet', function (accounts) {
 
         // 123 ^ 200 is odd => player 2 should start
         let [status, amount, nick1, nick2, ...rest] = await gamesInstance.getGameInfo(gameIdx);
-        //cells = cells.map(n => n.toNumber());
-        //assert.deepEqual(cells, [0, 0, 0, 0, 0, 0, 0, 0, 0], "The board should be empty");
         assert.equal(status.toNumber(), 2, "Player 2 should be able to start");
 
         assert.equal(amount.comparedTo(0), 0, "The game should have 0 ether");
@@ -684,19 +668,6 @@ contract('Bet', function (accounts) {
         }
     });
     
-    
-
-
-
-
-
-
-
-
-
-
-
-
 
     
     it("should accept the withdrawal from the game winner", async function () {
