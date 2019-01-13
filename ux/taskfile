@@ -3,12 +3,12 @@ PATH=./node_modules/.bin:$PATH
 
 # ACTIONS
 
-function init {
-  if [ -x $(which sudo) ]
-  then sudo npm i -g parcel-bundler
-  else npm i -g parcel-bundler
-  fi
-}
+#function init {
+#  if [ -x $(which sudo) ]
+#  then sudo npm i -g parcel-bundler
+#  else npm i -g parcel-bundler
+#  fi
+#}
 
 function dev {
   if [ "$1" == "ropsten" ];

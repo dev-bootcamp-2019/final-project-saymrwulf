@@ -34,9 +34,6 @@ contract Bet {
         else {
             timeout = 10 minutes;
         }
-        // demonstrate usage of a lib
-        //bool yes = true;
-        //doNothing(yes);
     }
 
     // CALLABLE
