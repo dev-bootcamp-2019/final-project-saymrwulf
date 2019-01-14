@@ -98,6 +98,7 @@ The details of the automated E2E test flow are specified in tests/frontend.spec.
 * using require() prevents transactions from running under wrong assumptions early on
 * the constructor is parameterized (timeouts) to enable automatic testing
 * helper functions encapsulate string management & hashing
+* withdraw pattern; an isolated function that is responsible for withdraws including failed transfers.
 
 ### UX
 * React/Redux for the heavy lifting of responsive design and keeping a global state
@@ -132,6 +133,35 @@ ipfs name publish[newHash]
 ```
 
 The new version of the webapp should be accessible by the same alias as before.
+
+## Avoiding Common Attacks
+### Reentrancy
+The withdraw function is a potential target of another contract. By using the transfer() function we limit the ammount of wei transmitted; this ammount is not enough for the other contract to reenter.
+On top of that, all state changes happen before transfer is triggered.
+### Arithmetic Overflows and Underflows
+Using SafeMath library (by OpenZeppelin) would be a way to avoid common flaws in checking values. 
+Also, comparing hashes and random numbers is not our first concern, but computing the win (doubling the own ammount) could be susceptible to an attack. For sake of simplicity we ommit countermeasures like assertions. This is pre-alpha code.
+### Unintended Ether
+There are 2 methods to forcibly sending ether to a non payable function: a) sending it within a selfdestruct function (of another contract), b) by pre-calculating our contract address and sending ether to this address before our contract is instanciated.
+As we do not make use of contract balances like this.balance(), this vector should not be an issue.
+### DELEGATECALL
+As we are using a stateless lib by using the solidity library keyword only, we feel pretty safe with regards to potential attack vectors on the library contract and its state.
+### Default Visibility
+We alway specify the intended visibility of functions, including the intentional public ones.
+### Entropy Illusion
+We certainly use randomness in our game (in an interactive protocol with the challenger doing commit/reveal), but not controlled by players other than the particular senders, who sign their transaction (including their randomness). And especially not controlled by miners (due to knowledge of block variables).
+Also, it is not important if it is sound randomness. More like: Can both players predict the randomness of the other one ? It would be a totally different story if we would introduce a third party that holds gambling stake or an external random oracle.
+### External Contract Referencing
+We do not make use of external, potentially malicious contracts other than a fake lib of our own.
+### Parameter Padding
+If an external App does not validate the parameters it uses in a transaction and sends parameters that are too short, those will be padded, which could cause all sorts of trouble, especially if the other party authorizes withdraws of other people's money. However, our withdraw access is strictly bound. And this is a problem of a client app anyway.
+### Unchecked CALL Return Values
+This is mostly a problem of a caller using the send() function instead of transfer().
+Also, as we are using a particular withdraw pattern in which every user must call an isolated withdraw function that deals with unsuccessful withdraws.
+### Race Conditions & Front Running
+Users who manipulate the gas price of their transaction are possible attackers. As we use a commit/reveal schema, this sort of attack should not be a problem. However, right now we only use a one-sided schema (only the challenger commits, the other player accepts and reveals immediately). One could increase security by extending the commit/reveal protocol to the second player as well, at the cost of an additional roundtrip. Another piece of information that could lead to a frontrunning attacks is the ammount of Ether at stake. Maybe an attacker has an advantage and just waits for an opportunity to cash out, which is an incentive worth investing in targeted attacks on particular users.
+Then there is the second class of attacker: miners who could be bribed or are players as well. This is a different playing field and has to be taken care by the protocol itself, e.g. by introducing advanced cryptography into the EVM (as an opcode; it is simply too expensive to implement everything from primitives and pay the gasfees.)
+### Dos
 
 
 
