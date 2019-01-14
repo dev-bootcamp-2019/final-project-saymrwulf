@@ -32,6 +32,8 @@ npm install -g runner-cli
 yarn global add parcel-bundler
 git clone https://github.com/dev-bootcamp-2019/final-project-saymrwulf.git
 ```
+There are two places in the project we just cloned, where readers should put their own mnemonics in right now.(see remarks about this topic in chapter Remarks / UX Subproject). 
+The first place is ```onchain/env.json```, the second one is ```ux/dev/mnemonics.txt```.
 
 ### Local Dependencies   
 #### Onchain Subproject
