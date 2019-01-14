@@ -92,5 +92,9 @@ The details of the automated E2E test flow are specified in tests/frontend.spec.
 * a library is used from within the main contract to give a glimpse how to save gas costs when used from other contracts  
 * an eventing mechanism is used to enable responsive state changes in a webapp
 * non-statechanging functions are callable (view) in order to not issue transactions from within clients
-* some operations are payable so that the contract can receive (and store) payments for bets.
-* 
+* some operations are payable so that the contract can receive (and store) payments for bets. some operations are not, in order to prevent unintentional payments (e.g. from other contracts)
+* we use a mapping in order to allow data access only through typed keys. iterating is possible when using the whole collection of keys
+* we do not delete game data as we want to keep past games publicly verifyable without using archival nodes. also, we save gas with this approach.
+* using require() prevents transactions from running under wrong assumptions early on
+* the constructor is parameterized (timeouts) to enable automatic testing
+*
