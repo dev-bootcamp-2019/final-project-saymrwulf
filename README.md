@@ -85,7 +85,7 @@ The details of the automated E2E test flow are specified in tests/frontend.spec.
 
 
 ## Design Pattern Decisions
-
+### Onchain
 * commitment schema for random values (to enable an interactive protocol)
 * salting a value before hashing it (to prevent rainbow table attacks)
 * timeouts are being used, so that no money is being locked in the contract forever
@@ -97,4 +97,42 @@ The details of the automated E2E test flow are specified in tests/frontend.spec.
 * we do not delete game data as we want to keep past games publicly verifyable without using archival nodes. also, we save gas with this approach.
 * using require() prevents transactions from running under wrong assumptions early on
 * the constructor is parameterized (timeouts) to enable automatic testing
-*
+* helper functions encapsulate string management & hashing
+
+### UX
+* React/Redux for the heavy lifting of responsive design and keeping a global state
+* a contract wrapper provides access to the deployed address and the contract ABI
+* we use a singleton & Web3 wrapper (web3.js) to encapsulate the two different Web3 instances (one for listening to chain events via websockets, the other one to sign transactions via MetaMask)
+* by using Dappeteer we can automate Metamask user interaction
+* we filter events by the other player's address in order to avoid noise, so the events have to carry these addresses
+
+## Extras
+By using IPFS for distributing the webapp we expand the censorship resistance of decentralized contracts towards the whole DApp.
+
+### DApp Deployment to IPFS
+We assume ipfs is installed and has a daemon running on the host computer. Also, we assume a deployable version of the webapp is in ```ux/build```. Then we can distribute our DApp and make it accessible via IPFS.
+
+```
+cd ux
+ipfs init
+ipfs add -r build/
+```
+
+We can check the result by opening the link to the hash of the build folder that is accessible through the ipfs https gateway: https://ipfs.io/ipfs/[Hash(build-folder)]/#/
+
+To remain consistency when webapps undergo frequent updates, we use IPNS to provide aliases (hashes) to IPFS hashes.
+
+```ipfs name publish [Hash(build-folder)]``` creates a permanent alias to the build folder hash that we created earlier.
+We can check the result by opening the link to this IPNS hash we just created by using ```ipfs name resolve [Alias]``` or by simply using the browser: https://ipfs.io/ipns/[Alias]/#/ 
+
+When the webapp's code is updated and built, we simply repeat 
+```
+ipfs add -r build/
+ipfs name publish[newHash]
+```
+
+The new version of the webapp should be accessible by the same alias as before.
+
+
+
+
