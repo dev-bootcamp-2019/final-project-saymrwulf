@@ -84,23 +84,13 @@ How to use the webapp is quiet easy to understand by reading the bet contract an
 The details of the automated E2E test flow are specified in tests/frontend.spec.js, which is triggered when using ux/taskfile's ```run test``` . This is an elaborate script containing appropriate timeouts to let the simulation run through. So after a local Ganache chain is fired up (with our predefined mnemonics) and the bet contract is deployed (and the new contract address is written to ux/env.local.test, replacing old addresses from former testruns), and the webapp has been started, this very script comes into play and does the following: Chromium w. Metamask starts, mnemonics are imported, a game starts by signing a transaction to start a game, the game is accepted by directly calling the contract's acceptGame function from within the other provider (HDwallet), confirming & starting the bet from Chromium, publishing the result and withdrawing the won ammount.  
 
 
+## Design Pattern Decisions
 
-
-* Develop with local chain `run dev`
-    * Start a local chain (ganache-cli)
-    * Deploy the contract to the local chain
-    * Open Browser with MetaMask pointing to ganache
-    * Bundle and serve ux
-* Develop with remote chain: `run dev ropsten`
-    * Start devserver
-* Build for release: `run build`
-    * Bundle static ux assets to `./build`
-* Run full test: `run test`
-    * Start a local chain
-    * Deploy the contracts to the local chain
-    * Bundle ux
-    * Start local server
-    * puppeteer/dappeteer
-    * Run tests locally
-
-in ux do ```run test```, ```run dev {ropsten}``` and ```run build```
+* commitment schema for random values (to enable an interactive protocol)
+* salting a value before hashing it (to prevent rainbow table attacks)
+* timeouts are being used, so that no money is being locked in the contract forever
+* a library is used from within the main contract to give a glimpse how to save gas costs when used from other contracts  
+* an eventing mechanism is used to enable responsive state changes in a webapp
+* non-statechanging functions are callable (view) in order to not issue transactions from within clients
+* some operations are payable so that the contract can receive (and store) payments for bets.
+* 
