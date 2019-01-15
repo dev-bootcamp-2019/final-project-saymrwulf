@@ -1,0 +1,35 @@
+{
+  "name": "ux",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chai": "^4.2.0",
+    "mutationobserver-shim": "^0.3.2",
+    "package": "^1.0.1",
+    "serve": "^10.1.1"
+  },
+  "devDependencies": {
+    "antd": "^3.12.2",
+    "cssnano": "^4.1.8",
+    "dappeteer": "^0.3.0",
+    "mocha": "^5.2.0",
+    "options": "0.0.6",
+    "puppeteer": "^1.11.0",
+    "react": "^16.7.0",
+    "react-dom": "^16.7.0",
+    "react-media": "^1.9.2",
+    "react-redux": "^6.0.0",
+    "react-router-dom": "^4.3.1",
+    "redux": "^4.0.1",
+    "redux-thunk": "^2.3.0",
+    "truffle-hdwallet-provider": "^1.0.2",
+    "web3": "^1.0.0-beta.33"
+  }
+}
