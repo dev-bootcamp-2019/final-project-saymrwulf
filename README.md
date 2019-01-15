@@ -168,6 +168,10 @@ We do not use blocktime or blockheight for entropy generation (see remarks for E
 ### Constructors
 If there has been a coding error or a refactoring mistake, so that the constructor name does not match the contract name anymore, the constructor becomes a normal function that anyone can call. As we use the constructor keyword explicitly, this should not be a concern anymore.
 ### Uninitialized Storage Pointers
+Uninitialized local variables within functions may contain values of other storage variable in the contract, which could be exploitable in a deliberate fashion. However, we did pay attention to the respective compiler warnings. Also, we used the memory keyword explicitly to rule out unintended storage pointers.
+### Tx.Origin
+Solidity's global tx.origin variable should not be used for caller authorization as this is susceptible to phishing attacks. One could use it in a whitelist fashion to rule out external contracts calling our contract within a require statement though. However, we did not use tx.origin at all.
+
 
 
 
