@@ -1,8 +1,8 @@
 Bet
 ---
-The main use case of bet is to initiate bets between 2 arbitrary players. The initiator/challenger (Alice) places a bet on a list of open bets. The responder (Bob) accepts a bet from this list. Alice can put Ethers on particulary bets and Bob can counter accordingly. Whoever wins the bet, wins the doubled ammount (sum of Alice's and Bob's money), and can withdraw it from the contract. The nature of the bet is not of importance as the contract acts as a placeholder and enabler for sophisticated bets that could rely on trustworthy oracles or sophisticated gambling based on Verifiable Random Functions, Verifyable Delay Functions, zero knowledge proofs and the like; verious sorts of games could be implemented on top of this framework. In our case the bet is simple: Alice places with her bet a very simple commitment (a hash) of a random number + ephemeral salt. Bob counters with a random number and an epheremal salt. Alice confirms Bob's counter by revealing his random number + salt. (If Alice does not confirm, Bob wins by default.) The contract decides upon who wins and who loses by simply checking, that a) Alice has not cheated by sending the wrong random number (Does the commitment hold ?), and b) is Alice-RND XOR Bob-RND even or odd. (even: Alice wins; odd: Bob wins). 
+The main use case of bet is to initiate bets between 2 arbitrary players. The initiator/challenger (Alice) places a bet on a list of open bets. The responder (Bob) accepts a bet from this list. Alice can put Ethers on particulary bets and Bob has to counter with the same ammount accordingly. Whoever wins the bet, wins the sum of Alice's and Bob's money, and can withdraw it from the contract. The nature of the bet is not of importance as the contract acts as a placeholder and enabler for sophisticated bets that could rely on trustworthy oracles or sophisticated cryptographic constructions (Verifiable Random Functions, Verifyable Delay Functions, zero knowledge proofs and the like); verious sorts of games could be implemented on top of this framework. In our case the bet is simple: Alice places with her bet a very simple commitment (a hash) of a random number + ephemeral salt. Bob counters with a random number and an epheremal salt. Alice confirms Bob's counter by revealing his random number + salt. (If Alice does not confirm, Bob wins by default.) The contract decides upon who wins and who loses by simply checking, that a) Alice has not cheated by sending the wrong random number (Does the commitment hold ?), and b) is `Alice-RND XOR Bob-RND` even or odd. (even: Alice wins; odd: Bob wins). This is called a commit-reveal schmema and has the nice property that winner election is not based on a trusted entity (like a bank) or deterministic randomness that could be predicted by, lets say, miners. The downside, of course, is, that you always need a peer counterparty. Also, one has to consider the back and forth being an overhead, especially if one extends the confirm-reveal to the other player as well, what we ommitted for sake of simplicity. (More on this in the `attacks and countermeasures` section.)
 
-The project consists of 2 subprojects: 1) An Ethereum part (```onchain```)with the bet sontract and a LibraryDemo contract mockup (for demonstrating usage of such libs). 2) And a React/Redux webapp (```ux```) that runs locally and uses either Ropsten or Ganache as a backend.
+The project consists of 2 subprojects: 1) An Ethereum part (```onchain```)with the bet sontract and a librarydemo contract mockup (for demonstrating usage of such libs). 2) And a React/Redux webapp part (```ux```) that runs locally and uses either Ropsten or Ganache as a backend.
 
 ---
 
@@ -12,8 +12,8 @@ Here is what we need:
 * node, npm, yarn, git
 * runner-cli (a simple task runner)
 * Parcel (a JS bundler)
-* Truffle (< 5), Solc, Ganache
-* our Project
+* Truffle (< 5.x), Solc, Ganache
+* project repo clone
 
 This is how we do it (We assume some preinstalled software from former exercises):
 ```
@@ -21,7 +21,7 @@ node --version
       v11.0.0
 npm --version
       6.4.1
-yarn --version
+yarn --version    (We need yarn because of difficulties installing Parcel with npm.)
       1.9.4
 truffle version
       Truffle v4.1.15 (core: 4.1.15)
@@ -32,46 +32,46 @@ npm install -g runner-cli
 yarn global add parcel-bundler
 git clone https://github.com/dev-bootcamp-2019/final-project-saymrwulf.git
 ```
-There are two places in the project we just cloned, where readers should put their own mnemonics in right now.(see remarks about this topic in chapter Remarks / UX Subproject). 
+There are two places in the project we just cloned, where readers should put their own 12 word Ethereum mnemonics in right now.(see remarks about this topic in chapter Remarks, subchapter UX Subproject). 
 The first place is ```onchain/env.json```, the second one is ```ux/dev/mnemonics.txt```.
 
 ### Local Dependencies   
 #### Onchain Subproject
 ```
 cd onchain
-run init  (= cd ./deploy && npm install)
+run init  (= this is actually a `cd ./deploy && npm install`)
 run build   (= contracts folder's sol file compile with solcjs)
-run test     (= local truffle tests)
-run deploy   (= node deploy of libraryDemo contract and bet contract to ropsten)
+run test     (= local `truffle test`)
+run deploy   (= `node deploy` of libraryDemo contract and bet contract to Ropsten)
          The account used to deploy is 0x...
          LibraryDemo deployed at 0x...
          Bet deployed at 0x...
-vi ./deploy/check-deployment.js    (insert bet contract adress from above)
-node ./deploy/check-deployment.js    (= mini check on ropsten deployment success)
+vi ./deploy/check-deployment.js    (= You have to insert the bet contract address from above.)
+node ./deploy/check-deployment.js    (= mini check on Ropsten deployment success)
 ```
 #### UX Subproject
 ```
 cd ux
 npm install
-vi .env   (insert bet contract adress from onchain subproject ropsten deploy from above)
+vi .env   (= insert bet contract address from onchain subproject Ropsten deploy from above)
 cd src/contracts
-ln -s ../../../onchain/build/__contracts_Bet_sol_Bet.abi ./bet.json
+ln -s ../../../onchain/build/__contracts_Bet_sol_Bet.abi ./bet.json   (= we need access to the ABI here)
 cd ../..
-run dev ropsten    (= local webapp running with bet contract deployed at ropsten backend)
-run dev   (= local webapp running with local ganache backend; made for manual End2End test; needs Chrome/Firefox+Metamask)
-run test  (= local webapp running with local ganache backend; automatic End2End test with Chromium/puppeteer/dappeteer)
+run dev ropsten    (= local webapp running with bet contract deployed at Ropsten backend)
+run dev   (= local webapp running with local ganache; for manual End2End test; needs Chrome/Firefox+Metamask)
+run test  (= local webapp running with local ganache; automatic End2End test with Chromium/puppeteer/dappeteer)
 ```
 ---
 
 ## Remarks
 ### Onchain Subproject
-A ```truffle compile && truffle migrate``` is not necessary as we stay with plain ```solcjs``` as seen in onchain's taskfile build step and with ```node deploy``` as seen in taskfile's deploy step (by using env.json). We use Truffle for local tests as can be seen in the taskfile's test step, thereby making use of Mocha testing framework for the JS based tests. Speaking of tests: the solidity based tests and the JS based tests in the tests folder are selfexplanatory and cover mainly cases of state management of edge cases of bets. Compared with these testing efforts, the bet contract (and the LibDemo mockup contract) are pretty simple: just a few functions for game creation (by the challenger), game acceptance (by the responder), game confirmation (by the challenger) and money withdrawal (by the winner). Some fitting events complement this to allow a DApp using this contract in a responsive manner.
+A ```truffle compile && truffle migrate``` is not necessary as we stay with plain ```solcjs``` as seen in onchain's taskfile build step and with ```node deploy``` as seen in taskfile's deploy step (by using `env.json`). We use Truffle for local tests as can be seen in the taskfile's test step, thereby making use of Mocha testing framework for the JS based tests. Speaking of tests: the solidity based tests and the JS based tests in the tests folder are selfexplanatory and cover mainly cases of state management of edge cases of bets. The bet contract (and the LibraryDemo contract) are pretty simple: just a few functions for game creation (by the challenger), game acceptance (by the responder), game confirmation (by the challenger), winner election and money withdrawal (by the winner). Some fitting events complement this to allow a DApp use this contract in a responsive manner.
 
-The usefulness of Solidity testing code is somewhat limited, as it is not possible to inject function calls from different user (which we need for simulating interactions in a game). Therefor the focus is on Macha's assertions as can be seen when running the full test suite.
+The usefulness of solidity testing code is somewhat limited, as it is not possible to inject function calls from different users (which we need for simulating interactions in a game). Therefor the focus is on Mocha's assertions as can be seen when running the full test suite (```run test```).
 
-Besides the functions that reflect bet actions, the bet contract uses a simple data structure to manage a game's state; also it uses an iterable list of open games to chose from.
+Besides the functions that reflect bet actions, the bet contract has a simple data structure to manage a game's state; also it uses an iterable list of open games to chose from.
 
-If a user visits the webapp, he can either create a new game that is then added to the list of open games or he can chose one of the open, not yet accepted (by other users), games on the list. As there is not much variation in game unfolding , the only driving force besides who the counterparty might be is, how much money is at stake. In case of game creation, the user choses a nickname, the ammount he is willing to bet, and his random number plus (hopefully random)salt. Of course, not the contract but the webapp is responsible to place a commitment (here, a hash) of this data pair at the contract's create function. In case of a user deciding not to create a new game but to accept an open, not confirmed (started) one, he sends his random number plus salt to the contract's accept function. And we need a third function, confirm, used by the initiator, in order to send his random number plus salt. Hopefully a data pair that fits his initial commitment - or he is the cheater-looser immediately. The fourth function just decides upon the winning party and opens the gate to the withdraw operation, most certainly the only really complex function to implement, as it deals with money and has to be testet thoroughly in order to prevent unauthorized draining. So in short: only winners of games can take the money at stake (but only once of course), only the challenger is able to regain his money if nobody accepts (but only once of course), timeouts penalize challenger misbehaviour.  
+If a user visits the webapp, he can either create a new game that is then added to this list of open games or he can chose one of the open, not yet accepted (by other users), games on the list. As there is not much variation in game unfolding , the only driving force besides who the counterparty might be, is, how much money is at stake. In case of game creation, the user choses a nickname, the ammount he is willing to bet, and his random number plus (hopefully random)salt. Of course, not the contract but the webapp is responsible to place a commitment (here, a hash) of this data pair at the contract's create function. In case of a user deciding not to create a new game but to accept an open, not confirmed (started) one, he sends his random number plus salt to the contract's accept function. And we need a third function, confirm, used by the initiator, in order to send his random number plus salt. Hopefully a data pair that fits his initial commitment - or he is the cheater-looser immediately. The fourth function just decides upon the winning party and opens the gate to the withdraw operation, most certainly the only really complex function to implement, as it deals with money and has to be testet thoroughly in order to prevent unauthorized draining. So in short: only winners of games can take the money at stake (but only once of course), only the challenger is able to regain his money if nobody accepts (but only once of course), timeouts penalize challenger misbehaviour.  
 
 ### UX Subproject
 
@@ -150,7 +150,7 @@ As we are using a stateless lib by using the solidity library keyword only, we f
 We alway specify the intended visibility of functions, including the intentional public ones.
 ### Entropy Illusion
 We certainly use randomness in our game (in an interactive protocol with the challenger doing commit/reveal), but not controlled by players other than the particular senders, who sign their transaction (including their randomness). And especially not controlled by miners (due to knowledge of block variables).
-Also, it is not important if it is sound randomness. More like: Can both players predict the randomness of the other one ? It would be a totally different story if we would introduce a third party that holds gambling stake or an external random oracle.
+Also, it is not important if it is sound randomness. More like: Can both players predict the randomness of the other one ? It would be a totally different story if we would introduce a third party that holds gambling stake (for instance a bank) or an external random oracle. An interesting cryptographic construction is a VRF (Verifyable Random Function) that could come to rescue. This is a place to start exploration as soon as particular cryptographic primitives (like pairings) are supported by the EVM (opcodes); otherwise they are simply too expensive in terms of execution time and gas.
 ### External Contract Referencing
 We do not make use of external, potentially malicious contracts other than a fake lib of our own.
 ### Parameter Padding
@@ -160,8 +160,9 @@ This is mostly a problem of a caller using the send() function instead of transf
 Also, as we are using a particular withdraw pattern in which every user must call an isolated withdraw function that deals with unsuccessful withdraws.
 ### Race Conditions & Front Running
 Users who manipulate the gas price of their transaction are possible attackers. As we use a commit/reveal schema, this sort of attack should not be a problem. However, right now we only use a one-sided schema (only the challenger commits, the other player accepts and reveals immediately). One could increase security by extending the commit/reveal protocol to the second player as well, at the cost of an additional roundtrip. Another piece of information that could lead to a frontrunning attacks is the ammount of Ether at stake. Maybe an attacker has an advantage and just waits for an opportunity to cash out, which is an incentive worth investing in targeted attacks on particular users.
-Then there is the second class of attacker: miners who could be bribed or are players as well. This is a different playing field and has to be taken care by the protocol itself, e.g. by introducing advanced cryptography into the EVM (as an opcode; it is simply too expensive to implement everything from primitives and pay the gasfees.)
-### Dos
+Then there is the second class of attacker: miners who could be bribed or are players/stakeholders as well. This is a different playing field and has to be taken care of by the protocol itself, e.g. by introducing advanced cryptography into the EVM. There exists an interesting construction called VDF (Verifyable Delay Function) that could be used to level the playing field of stakeholders in terms of timings. (This is another prospect for further exploration.)
+### DoS
+
 
 
 
