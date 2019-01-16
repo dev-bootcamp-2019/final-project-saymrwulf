@@ -13,6 +13,7 @@
 * the constructor is parameterized (timeouts) to enable automatic testing
 * helper functions encapsulate string management & hashing
 * withdraw pattern; an isolated function that is responsible for withdraws including failed transfers.
+* circuit breaker implemented (as required per finalexam conditions): createGame & acceptGame operations can be blocked by the contract owner in case of emergency. However, shortcutting withdrawels favouring owners is a classic third party advantage. This increases the gametheoretic riscs for gamers; we do not want to go this road.
 
 ### UX
 * React/Redux for the heavy lifting of responsive design and keeping a global state

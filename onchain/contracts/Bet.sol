@@ -27,6 +27,29 @@ contract Bet {
     event GameStarted(uint32 indexed gameIdx, address indexed opponent);
     event GameEnded(uint32 indexed gameIdx, address indexed opponent);
 
+    // Circuit Breaker
+
+    bool private stopped = false;
+    address private owner;
+
+    modifier isAdmin() {
+        if(msg.sender != owner) {
+            revert();
+        }
+        _;
+    }
+
+    function toggleContractActive() isAdmin public
+    {
+        stopped = !stopped;
+    }
+
+    modifier stopInEmergency { if (!stopped) _; }
+    modifier onlyInEmergency { if (stopped) _; }
+
+
+    // Constructor
+
     constructor(uint16 givenTimeout) public {
         if(givenTimeout != 0) {
             timeout = givenTimeout;
@@ -75,7 +98,7 @@ contract Bet {
 
     // OPERATIONS
 
-    function createGame(bytes32 randomNumberHash, string nick) public payable returns (uint32 gameIdx) {
+    function createGame(bytes32 randomNumberHash, string nick) public payable stopInEmergency returns (uint32 gameIdx) {
         require(nextGameIdx + 1 > nextGameIdx);
 
         gamesData[nextGameIdx].openListIndex = uint32(openGames.length);
@@ -92,7 +115,7 @@ contract Bet {
         nextGameIdx++;
     }
 
-    function acceptGame(uint32 gameIdx, uint8 randomNumber, string nick) public payable {
+    function acceptGame(uint32 gameIdx, uint8 randomNumber, string nick) public payable stopInEmergency {
         require(gameIdx < nextGameIdx);
         require(gamesData[gameIdx].players[0] != 0x0);
         require(msg.value == gamesData[gameIdx].amount);

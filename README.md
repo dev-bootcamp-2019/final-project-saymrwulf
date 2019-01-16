@@ -57,8 +57,8 @@ vi .env   (= insert bet contract address from onchain subproject Ropsten deploy 
 cd src/contracts
 ln -s ../../../onchain/build/__contracts_Bet_sol_Bet.abi ./bet.json   (= we need access to the ABI here)
 cd ../..
-run dev ropsten    (= local webapp running with bet contract deployed at Ropsten backend)
-run dev   (= local webapp running with local ganache; for manual End2End test; needs Chrome/Firefox+Metamask)
+run dev ropsten    (= local webapp running with bet contract deployed at Ropsten backend - switch Metamask to Ropsten !)
+run dev   (= local webapp running with local ganache; for manual End2End test; needs Chrome/Firefox+Metamask - switch Metamask to private network !)
 run test  (= local webapp running with local ganache; automatic End2End test with Chromium/puppeteer/dappeteer)
 ```
 ---

@@ -13,7 +13,7 @@ async function startGame() {
     const BetAbi = fs.readFileSync(path.resolve(__dirname, "..", "build", "__contracts_Bet_sol_Bet.abi")).toString()
 
     try {
-        const BetInstance = new web3.eth.Contract(JSON.parse(BetAbi), "0x77718aE07319464E14Dc9071F0D6ce81A56aa52C")
+        const BetInstance = new web3.eth.Contract(JSON.parse(BetAbi), "0x1ffD2E74c500Ec0aAe4B4b05bBDB6c10e5A5cC3a")
 
         const hash = await BetInstance.methods.saltedHash(100, "initial salt").call()
         const tx = await BetInstance.methods.createGame(hash, "Ole").send({ from: accounts[0], value: web3.utils.toWei("0.001", "ether") })
