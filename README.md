@@ -84,9 +84,21 @@ How to use the webapp is quite easy to understand by reading the bet contract an
 The details of the automated E2E test flow are specified in tests/frontend.spec.js, which is triggered when using ux/taskfile's ```run test``` . This is an elaborate script containing appropriate timeouts to let the simulation run through. So after a local Ganache chain is fired up (with our predefined mnemonics) and the bet contract is deployed (and the new contract address is written to ux/env.local.test, replacing old addresses from former testruns), and the webapp has been started, this very script comes into play and does the following: Chromium w. Metamask starts, mnemonics are imported, a game starts by signing a transaction to start a game, the game is accepted by directly calling the contract's acceptGame function from within the other provider (HDwallet), confirming & starting the bet from Chromium, publishing the result and withdrawing the won ammount.  
 
 ## Extras
-By using IPFS for distributing the webapp we expand the censorship resistance of decentralized contracts towards the whole DApp.
+### Contract Verification with Etherscan's verifyContract2
+Etherscan provides a way to verify and publish the Sourcecode that corresponds to contract bytecode deployed on an Ethereum network.
+As we used Ropsten network so far, it is quite natural to make use of https://ropsten.etherscan.io/verifyContract2
+It is a quirk though. First we have to flatten our contract code. So we install truffle-flattener, flatten Bet.sol and LibraryDemo.sol, deploy the flat file to Ropsten via Remix and , finally, check if the deployed contract matches the sourcecode we offer to verifyContract2.
+
+```
+npm install -D truffle-flattener
+truffle-flattener ./contracts/Bet.sol > ./contracts/BetFlattened.sol
+```
+
+We copy/paste the content of BetFlattened.sol to Remix, compile with the same compiler version we already used within our local environment (0.4.25+commit.59dbf8f1), without optimizations, and deploy LibraryDemo and Bet contract to Ropsten. The new contract addresses and the sourcecode we copy/paste to https://ropsten.etherscan.io/verifyContract2 (optimization=no) and input the ABI encoded constructor argument of our choice (e.g. ABI encoded "10" = "000000000000000000000000000000000000000000000000000000000000000a").
+Running verifyContruct2 unfortunately results in a failed attmpt (No Match), which is simply wrong if one compares manually both bytecodestrings that Etherscan's veryfyContract2 is looking at: they are equal. 
 
 ### DApp Deployment to IPFS
+By using IPFS for distributing the webapp we expand the censorship resistance of decentralized contracts towards the whole DApp.
 We assume ipfs is installed and has a daemon running on the host computer. Also, we assume a deployable version of the webapp is in ```ux/build```. Then we can distribute our DApp and make it accessible via IPFS.
 
 ```
