@@ -87,15 +87,15 @@ The details of the automated E2E test flow are specified in tests/frontend.spec.
 ### Contract Verification with Etherscan's verifyContract2
 Etherscan provides a way to verify and publish the Sourcecode that corresponds to contract bytecode deployed on an Ethereum network.
 As we used Ropsten network so far, it is quite natural to make use of https://ropsten.etherscan.io/verifyContract2
-It is a quirk though. First we have to flatten our contract code. So we install truffle-flattener, flatten Bet.sol and LibraryDemo.sol, deploy the flat file to Ropsten via Remix and , finally, check if the deployed contract matches the sourcecode we offer to verifyContract2.
+It is a quirk though. First we have to flatten our contract code, because Etherscan's verifyContract2 requires this. So we install truffle-flattener, flatten Bet.sol and LibraryDemo.sol, deploy the flat file to Ropsten via Remix and , finally, check if the deployed contract matches the sourcecode we offer to verifyContract2.
 
 ```
 npm install -D truffle-flattener
 truffle-flattener ./contracts/Bet.sol > ./contracts/BetFlattened.sol
 ```
 
-We copy/paste the content of BetFlattened.sol to Remix, compile with the same compiler version we already used within our local environment (0.4.25+commit.59dbf8f1), without optimizations, and deploy LibraryDemo and Bet contract to Ropsten. The new contract addresses and the sourcecode we copy/paste to https://ropsten.etherscan.io/verifyContract2 (optimization=no) and input the ABI encoded constructor argument of our choice (e.g. ABI encoded "10" = "000000000000000000000000000000000000000000000000000000000000000a").
-Running verifyContruct2 unfortunately results in a failed attmpt (No Match), which is simply wrong if one compares manually both bytecodestrings that Etherscan's veryfyContract2 is looking at: they are equal. 
+We copy/paste the content of BetFlattened.sol to Remix, compile with the same compiler version we already used within our local environment (0.4.25+commit.59dbf8f1), without optimizations, and deploy LibraryDemo and Bet contract to Ropsten. The new contract addresses and the sourcecode we copy/paste to https://ropsten.etherscan.io/verifyContract2 (optimization=no) and input the ABI encoded constructor argument of our choice.
+Running verifyContract2 unfortunately results in a failed attempt (No Match). The reason for this behaviour at the time of this writing seems to be, that Etherscan's verifyContract2 does not play well with contracts that import libraries, no matter if flattened or not. This holds true for Rinkeby as well. Also, this holds true for flatteners other than truffle-flattener (e.g. Solidity Flattery). The only way to check the functionality of verifyContract2 is to out-comment any appearance of the lib in Bet.sol.
 
 ### DApp Deployment to IPFS
 By using IPFS for distributing the webapp we expand the censorship resistance of decentralized contracts towards the whole DApp.
