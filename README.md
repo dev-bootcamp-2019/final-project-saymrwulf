@@ -84,18 +84,30 @@ How to use the webapp is quite easy to understand by reading the bet contract an
 The details of the automated E2E test flow are specified in tests/frontend.spec.js, which is triggered when using ux/taskfile's ```run test``` . This is an elaborate script containing appropriate timeouts to let the simulation run through. So after a local Ganache chain is fired up (with our predefined mnemonics) and the bet contract is deployed (and the new contract address is written to ux/env.local.test, replacing old addresses from former testruns), and the webapp has been started, this very script comes into play and does the following: Chromium w. Metamask starts, mnemonics are imported, a game starts by signing a transaction to start a game, the game is accepted by directly calling the contract's acceptGame function from within the other provider (HDwallet), confirming & starting the bet from Chromium, publishing the result and withdrawing the won ammount.  
 
 ## Extras
-### Contract Verification with Etherscan's verifyContract2
+### Contract Verification & Publish with Etherscan's verifyContract2
 Etherscan provides a way to verify and publish the Sourcecode that corresponds to contract bytecode deployed on an Ethereum network.
 As we used Ropsten network so far, it is quite natural to make use of https://ropsten.etherscan.io/verifyContract2
-It is a quirk though. First we have to flatten our contract code, because Etherscan's verifyContract2 requires this. So we install truffle-flattener, flatten Bet.sol and LibraryDemo.sol, deploy the flat file to Ropsten via Remix and , finally, check if the deployed contract matches the sourcecode we offer to verifyContract2.
+It is a quirk though. First Etherscan's verifyContract2 requires us to flatten our contract code. So we install truffle-flattener, then flatten Bet.sol and LibraryDemo.sol, deploy the flat file to Ropsten via Remix and, finally, check if the deployed contract matches the sourcecode we offer to verifyContract2.
 
 ```
 npm install -D truffle-flattener
 truffle-flattener ./contracts/Bet.sol > ./contracts/BetFlattened.sol
 ```
 
-We copy/paste the content of BetFlattened.sol to Remix, compile with the same compiler version we already used within our local environment (0.4.25+commit.59dbf8f1), without optimizations, and deploy LibraryDemo and Bet contract to Ropsten. The new contract addresses and the sourcecode we copy/paste to https://ropsten.etherscan.io/verifyContract2 (optimization=no) and input the ABI encoded constructor argument of our choice.
-Running verifyContract2 unfortunately results in a failed attempt (No Match). The reason for this behaviour at the time of this writing seems to be, that Etherscan's verifyContract2 does not play well with contracts that import libraries, no matter if flattened or not. This holds true for Rinkeby as well. Also, this holds true for flatteners other than truffle-flattener (e.g. Solidity Flattery). The only way to check the functionality of verifyContract2 is to out-comment any appearance of the lib in Bet.sol.
+We copy/paste the content of BetFlattened.sol to Remix, compile with the same compiler version we already used within our local environment (0.4.25+commit.59dbf8f1), without optimizations, and deploy both contracts to Ropsten. The new contract addresses and the sourcecode we copy/paste to https://ropsten.etherscan.io/verifyContract2 (optimization=no) and input the ABI encoded constructor argument of our choice (64character all-zero-string).
+Running verifyContract2 unfortunately results in a failed attempt (NoMatch). The reason for this behaviour at the time of this writing seems to be, that Etherscan's verifyContract2 does not play well with contracts that import libraries, no matter if flattened or not. This holds true for Rinkeby as well. Also, this holds true for flatteners other than truffle-flattener (e.g. Solidity Flattery). The only way to check the functionality of verifyContract2 is to out-comment any appearance of the lib in Bet.sol.
+
+This is what we got with our Bet.sol code - nonflat & all lib appearance removed, on Rinkeby, again with Remix compile&deploy:
+contract address: 0xdb3b57f6fa6a61baaa6b7a0fb5247cf500dd352c
+deploy trx: 0xb6a391a15b341b0a7f038c3fd50897922df59f13c12fa59b175bb2a45474f7ad
+constructor argument: 64 character all-zero-string (=ABI encoded zero)
+successfully verified at https://rinkeby.etherscan.io/verifyContract2
+- code is published at:
+https://rinkeby.etherscan.io/address/0xdb3b57f6fa6a61baaa6b7a0fb5247cf500dd352c#code
+
+### Check Contract with MyEtherWallet
+https://myetherwallet.com/#contracts
+search for this contract 0xdb3b57f6fa6a61baaa6b7a0fb5247cf500dd352c (& copy/paste ABI from onchain/build/__contracts_Bet_sol_Bet.abi)
 
 ### DApp Deployment to IPFS
 By using IPFS for distributing the webapp we expand the censorship resistance of decentralized contracts towards the whole DApp.
