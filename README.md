@@ -4,6 +4,7 @@ The main use case of bet is to initiate bets between 2 arbitrary players. The in
 
 The project consists of 2 subprojects: 1) An Ethereum part (```onchain```)with the bet sontract and a librarydemo contract mockup (for demonstrating usage of such libs). 2) And a React/Redux webapp part (```ux```) that runs locally and uses either Ropsten or Ganache as a backend.
 
+To get a quick impression about the game, have a look at ConsenSys_Finalexam.mov . The short video contains a screencapture of the end-to-end test. 
 ---
 
 ## Prep
